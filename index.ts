@@ -4,6 +4,7 @@ dotenv.config();
 import Stripe from 'stripe';
 import { UserEntity } from './entity/user.entity';
 import { myDataSource } from './app-data-source';
+import { ProductEntity } from './entity/product.entity';
 
 // establish database connection
 myDataSource.initialize()
@@ -16,7 +17,7 @@ myDataSource.initialize()
 
 // express setup
 const app: Express = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 // stripe setup
 const stripeSecretKey: string = process.env.STRIPE_SECRET_KEY || '';
@@ -26,6 +27,32 @@ const stripe = new Stripe(stripeSecretKey, {
     apiVersion: '2022-11-15',
     typescript: true
 });
+
+app.post('/stripe-webhook', express.raw({ type: 'application/json' }), (req: Request, res: Response) => {
+    const signature = req.headers['stripe-signature'] || '';    
+    let event;
+    try {
+        /* verify stripe signature */
+        event = stripe.webhooks.constructEvent(req.body, signature, endPointSecretKey);
+    } catch (err) {
+        return res.status(400).send(`Webhook error: ${err.message}`)
+    }
+    if(event.type == 'checkout.session.completed') {
+        const session = event.data.object;
+        console.log("session:", session);
+    }
+    switch(event.type) {
+        case 'checkout.session.completed': {
+            const session = event.data.object;
+            // save the order as "complete but awaiting payment"
+            
+        }
+    }
+    return res.status(200).send();
+})
+
+
+app.use(express.json());
 
 // register routes
 app.get('/', (req: Request, res: Response) => {
@@ -40,6 +67,17 @@ app.get('/users', async function(req: Request, res: Response) {
 app.post('/users', async function (req: Request, res: Response) {
     const user = myDataSource.getRepository(UserEntity).create(req.body);
     const result = await myDataSource.getRepository(UserEntity).save(user)
+    return res.json(result);
+})
+
+app.get('/products', async (req: Request, res: Response) => {
+    const products = await myDataSource.getRepository(ProductEntity).find();
+    res.json(products);
+})
+
+app.post('/products', async (req: Request, res: Response) => {
+    const product = myDataSource.getRepository(ProductEntity).create(req.body);
+    const result = await myDataSource.getRepository(ProductEntity).save(product);
     return res.json(result);
 })
 
@@ -77,23 +115,6 @@ app.post('/initiate-payment', async (req: Request, res: Response) => {
     }
 })
 
-app.post('/stripe-webhook', express.raw({ type: 'application/json' }), (req: Request, res: Response) => {
-    const signature = req.headers['stripe-signature'] || '';    
-    let event;
-    try {
-        /* verify stripe signature */
-        event = stripe.webhooks.constructEvent(req.body, signature, endPointSecretKey);
-        console.log("event:", event);        
-    } catch (err) {
-        console.log("err:", err);
-        return res.status(400).send(`Webhook error: ${err.message}`)
-    }
-    if(event.type == 'checkout.session.completed') {
-        const session = event.data.object;
-        console.log("session:", session);
-    }
-    return res.status(200).send();
-})
 
 app.listen(port, () => {
     console.log(`Server is up and running at port: ${port}`);
