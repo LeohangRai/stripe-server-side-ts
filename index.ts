@@ -5,6 +5,9 @@ import Stripe from 'stripe';
 import { UserEntity } from './entity/user.entity';
 import { myDataSource } from './app-data-source';
 import { ProductEntity } from './entity/product.entity';
+import { CreateProductDto } from './dtos/create-product.dto';
+import { validate, ValidationError } from 'class-validator';
+import { CreateUserDto } from './dtos/create-user.dto';
 
 // establish database connection
 myDataSource.initialize()
@@ -65,9 +68,18 @@ app.get('/users', async function(req: Request, res: Response) {
 })
 
 app.post('/users', async function (req: Request, res: Response) {
+    const userData = new CreateUserDto();
+    userData.firstName = req.body.firstName;
+    userData.lastName = req.body.lastName;
+    userData.age = req.body.age;
+    const errors = await validate(userData);
+    if(errors.length > 0) {
+        const errorPayload = resolveValidationErrors(errors);
+        return res.status(400).send(errorPayload);
+    }
     const user = myDataSource.getRepository(UserEntity).create(req.body);
     const result = await myDataSource.getRepository(UserEntity).save(user)
-    return res.json(result);
+    return res.status(201).json(result);
 })
 
 app.get('/products', async (req: Request, res: Response) => {
@@ -76,10 +88,37 @@ app.get('/products', async (req: Request, res: Response) => {
 })
 
 app.post('/products', async (req: Request, res: Response) => {
+    const productData = new CreateProductDto();
+    productData.name = req.body.name;
+    productData.price = req.body.price;
+    const errors = await validate(productData);
+    if (errors.length > 0) {
+        const errorPayload = resolveValidationErrors(errors);
+        return res.status(422).send(errorPayload);
+    }
+    console.log("errors:", errors);
     const product = myDataSource.getRepository(ProductEntity).create(req.body);
     const result = await myDataSource.getRepository(ProductEntity).save(product);
-    return res.json(result);
+    return res.status(201).json(result);
 })
+
+function resolveValidationErrors(errors: ValidationError[]) {
+    const validationErrors : { [key: string] : { [key: string]: string } } [] = [];
+    if (errors.length > 0) {
+        for (const error of errors) {
+            if (error.constraints) {
+                let constraintObj: {[key: string]: { [key: string]: string }} = {};
+                constraintObj[error.property] = error.constraints;
+                validationErrors.push(constraintObj)        
+            }
+        }
+    }
+    return {
+        status: 422,
+        error: true, 
+        constraints: validationErrors
+    };
+}
 
 app.post('/initiate-payment', async (req: Request, res: Response) => {
     try {
