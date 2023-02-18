@@ -2,7 +2,9 @@ import { Column, Entity, Generated, JoinColumn, ManyToOne, PrimaryGeneratedColum
 import { ProductEntity } from "./product.entity";
 import { UserEntity } from "./user.entity";
 
-@Entity()
+@Entity({
+    name: 'payments'
+})
 export class PaymentEntity {
     @PrimaryGeneratedColumn()
     id: number;
