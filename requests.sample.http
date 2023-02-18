@@ -1,0 +1,42 @@
+### POST a user
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "username": "leo_rai7",
+    "email": "raileohang@gmail.com",
+    "age": 22
+}
+
+### GET all users
+GET http://localhost:3000/users
+
+
+### POST a product
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+    "name": "NFT 1",
+    "price": 420
+}
+
+### GET all products
+GET http://localhost:3000/products
+
+
+### Initiate Stripe Checkout Session
+POST http://localhost:3000/initiate-payment
+Content-Type: application/json
+
+{
+}
+
+
+### Stripe webhook, test with unsigned payload
+POST http://localhost:3000/stripe-webhook
+Content-Type: application/json
+
+{
+    "dummy": "payload"
+}
