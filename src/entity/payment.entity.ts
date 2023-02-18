@@ -1,25 +1,32 @@
-import { Column, Entity, Generated, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ProductEntity } from "./product.entity";
-import { UserEntity } from "./user.entity";
+import {
+  Column,
+  Entity,
+  Generated,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn
+} from 'typeorm';
+import { ProductEntity } from './product.entity';
+import { UserEntity } from './user.entity';
 
 @Entity({
-    name: 'payments'
+  name: 'payments'
 })
 export class PaymentEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Generated('uuid')
-    _id: string;
+  @Generated('uuid')
+  _id: string;
 
-    @ManyToOne(() => UserEntity)
-    @JoinColumn({ referencedColumnName: 'id', name: 'userId' })
-    user?: UserEntity;
+  @ManyToOne(() => UserEntity)
+  @JoinColumn({ referencedColumnName: 'id', name: 'userId' })
+  user?: UserEntity;
 
-    @ManyToOne(type => ProductEntity)
-    @JoinColumn({ referencedColumnName: 'id', name: 'productId' })
-    product: ProductEntity;
+  @ManyToOne((_type) => ProductEntity)
+  @JoinColumn({ referencedColumnName: 'id', name: 'productId' })
+  product: ProductEntity;
 
-    @Column()
-    amount: number
+  @Column()
+  amount: number;
 }
