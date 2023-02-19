@@ -22,7 +22,5 @@ export const createUserSchema = object({
 
 async function isUniqueEmail(email: string): Promise<boolean> {
   const user = await findUserByEmail(email);
-  console.log('user:', user);
-
   return user == null;
 }

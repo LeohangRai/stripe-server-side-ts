@@ -15,6 +15,5 @@ export const createProductSchema = object({
 
 async function isUniqueProductName(name: string): Promise<boolean> {
   const product = await findProductByName(name);
-  console.log('product:', product);
   return product == null;
 }
