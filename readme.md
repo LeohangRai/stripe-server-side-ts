@@ -12,6 +12,20 @@ After you have signed up, you can look at all of your credentials or API Keys on
 The ```Secret Key``` is the one you will use on your backend and the ```Publishable Key``` is the one you use on your front end or the client side.
 On this project's ```.env``` file, I have set a ```STRIPE_SECRET_KEY``` variable and a ```STRIPE_PUBLIC_KEY``` variable for storing these API Keys.
 
+### Installation
+```bash
+$ npm install
+```
+
+### Running the app
+
+```bash
+# development
+$ npm start
+
+# watch mode
+$ npm run start:dev
+```
 
 #### Stripe Checkout
 Stripe Checkout is a low-code payment integration that creates a customizable payment page hosted on Stripe.
@@ -55,7 +69,7 @@ Before you can verify signatures, you need to retrieve your endpoint's secret fr
 You can also see your webhook secret while running the ```stripe listen``` command on your machine. 
 You will usually do this as:
 ```sh
-stripe listen --forward-to <your_server_url>/<webhook_endpoint>
+$ stripe listen --forward-to <your_server_url>/<webhook_endpoint>
 ```
 On this project's ```.env``` file, I have set a ```ENDPOINT_SECRET_KEY``` variable for storing the Webhook secret.
 
