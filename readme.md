@@ -31,6 +31,7 @@ Read more about Stripe Checkout and its lifecycle and how it works **<a href="ht
 
 ### Web Hooks
 You can fulfill orders by running webhooks after the ```checkout.session.completed``` event sends a notification. Webhooks are basically HTTP calls that run when an **<a href="https://stripe.com/docs/api/events" target="_blank" title="Stripe Checkout Docs">event</a>** occurs. You can then use these notifications to execute actions in your backend accordingly.
+
 *For example, if a customer doesn't make a purchase and their cart expires, you can set a webhook on the ```checkout.session.expired``` event and then return items to your inventory or maybe send them a cart abandonment email.*
 
 ###### How it works:
@@ -43,11 +44,14 @@ $ stripe listen --forward-to localhost:3000/stripe/webhook
 ```
 
 See how to setup Stripe-CLI on your machine **<a href="https://stripe.com/docs/stripe-cli" target="_blank" title="Stripe CLI Setup">here</a>**.
+
 *Using the Stripe-CLI, you can even manually trigger events such as the ```payment_intent.succeeded``` and ```payment_intent.created``` events to test your Webhook API. How cool is that?*
 
 ###### Securing Webhooks by using Signatures
 Stripe can optionally sign the Webhook events it sends to your endpoints by including a signature in each event's ```Stripe-Signature``` header. This allows you to verify that the events were sent by Stripe and not by a third party.
+
 Before you can verify signatures, you need to retrieve your endpoint's secret from your Dashboard's **<a href="https://dashboard.stripe.com/test/webhooks" target="_blank" title="Stripe Webhooks Dashboard">Webhooks Settings</a>**. Select an endpoint that you want to obtain the secret for or create a new endpoint. You can find your endpoint secret key on the sample endpoint section.
+
 You can also see your webhook secret while running the ```stripe listen``` command on your machine. 
 You will usually do this as:
 ```sh
@@ -61,7 +65,7 @@ Stripe generates a unique secret key for each endpoint. If you use the same endp
 Stripe requires the raw body of the request to perform signature verifiction. If you're using a framework, make sure it doesn't manipulate the raw body. Any manipulation to the raw body of the request causes the verification to fail.
 
 In **Express.js**, this means you cannot be doing ```app.use(express.json())``` on the global scope ahead of the Stripe Webhook route. 
-You might as well use a raw body parser middleware, such as the ```express.raw({ type: 'application/json' })``` before your webhook route like I have done in this project:
+You might as well use a raw body parser middleware, such as the ```express.raw({ type: 'application/json' })``` before your webhook route like I have done in this project.
 
 ***`src/routes/stripe-webhook.route.ts`***
 ```ts
